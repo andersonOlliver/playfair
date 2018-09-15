@@ -184,23 +184,26 @@ def gerar_texto_criptografado(texto_normalizado, matriz_chave):
 
 
 def realizar_criptografia(conteudo, chave):
-    print('================================================')
-    print('Iniciando processamento')
     texto_normalizado = normalizar_texto(conteudo)
     matriz_chave = gerar_matriz_chave(chave)
-
     return gerar_texto_criptografado(texto_normalizado, matriz_chave)
 
 
 def cripografar():
     conteudo_arquivo = ler_arquivo_entrada()
     chave = ler_chave()
-
     caminho_saida = ler_arquivo_saida()
 
+    print('================================================')
+    print('Iniciando processamento')
     resultado = realizar_criptografia(conteudo_arquivo, chave)
-
     gravar_arquivo(caminho_saida, resultado)
+    print('Processamento finalizado')
+    print('================================================')
+    try:
+        os.system('pause')  # windows, doesn't require enter
+    except:
+        os.system('read -p "Pressione qualquer tecla para continuar"')  # linux
 
 
 #################################################################
@@ -211,9 +214,62 @@ def cripografar():
 #################################################################
 #                        DECRIPTOGRAFIA                         #
 #################################################################
+def concatena_caracter_decriptografia(primeira_posicao, proxima_posicao, matriz_chave, resultado):
+    if primeira_posicao[0] == proxima_posicao[0]:  # mesma linha
+        if (primeira_posicao[1] - 1) < 0:  # se estourar a largura da matriz pega o da primeira posição da linha atual
+            resultado = resultado + matriz_chave[primeira_posicao[0]][4]
+        else:  # senão pega o elemento anterior da linha
+            resultado = resultado + matriz_chave[primeira_posicao[0]][primeira_posicao[1] - 1]
+    elif primeira_posicao[1] == proxima_posicao[1]:  # mesma primeira_posicao
+        if (primeira_posicao[0] - 1) < 0:  # se estourar o tamanho da matriz pega o da primeira posição da coluna atual
+            resultado = resultado + matriz_chave[4][primeira_posicao[1]]
+        else:
+            resultado = resultado + matriz_chave[primeira_posicao[0] - 1][primeira_posicao[1]]
+    else:
+        resultado = resultado + matriz_chave[primeira_posicao[0]][proxima_posicao[1]]
+    return resultado
+
+
+def gerar_texto_decriptografado(texto_normalizado, matriz_chave):
+    """
+        Mesma linha pega anterior a esquerda
+        Mesma coluna pega anterior linha acima
+        Senão avançar até a mesma coluna do outro par
+        :param texto_normalizado:
+        :param matriz_chave:
+        :return: texto cifrado
+        """
+    resultado = ""
+    tamanho_texto = len(texto_normalizado)
+    i = 0
+    while i < tamanho_texto:
+        atual = texto_normalizado[i]
+        proximo = texto_normalizado[i + 1]
+        posicao_atual = indice_do_elemento(matriz_chave, atual)
+        posicao_proximo = indice_do_elemento(matriz_chave, proximo)
+
+        resultado = concatena_caracter_decriptografia(posicao_atual, posicao_proximo, matriz_chave,
+                                                      resultado)  # concatena atual
+        resultado = concatena_caracter_decriptografia(posicao_proximo, posicao_atual, matriz_chave,
+                                                      resultado)  # concatena proximo
+
+        i += 3
+
+    return resultado
+
+
+def realizar_decriptografia(conteudo, chave):
+    texto_normalizado = normalizar_texto(conteudo)
+    matriz_chave = gerar_matriz_chave(chave)
+    return gerar_texto_decriptografado(texto_normalizado, matriz_chave)
+
+
 def decriptografar():
-    print('método não implementado')
-    pass
+    conteudo_arquivo = ler_arquivo_entrada()
+    chave = ler_chave()
+    caminho_saida = ler_arquivo_saida()
+    resultado = realizar_decriptografia(conteudo_arquivo, chave)
+    gravar_arquivo(caminho_saida, resultado)
 
 
 #################################################################
@@ -275,14 +331,3 @@ def inicio():
 ##################################
 print('Bem vindo')
 inicio()
-
-# 1 - Letras de texto claro repetidas que estão no mesmo par são separadas por uma de preenchimento, como x, de modo que
-#     balloon seria tratado como ba lx lo on.
-#
-# 2 - Duas letras de texto claro que estejam na mesma linha da matriz são substituídas pela letra à direita, com o
-#     primeiro elemento da linha vindo após o último, de forma rotativa. Por exemplo, ar é encriptado como RM.
-#
-# 3 -
-#
-#
-#
