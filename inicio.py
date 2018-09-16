@@ -22,6 +22,16 @@ def existe(nome_do_arquivo):
         return 0
 
 
+def valida_caminho(nome_do_arquivo):
+    try:
+        f = open(nome_do_arquivo, 'w+')
+        f.close()
+        return 1
+    except Exception as e:
+        print(e)
+        return 0
+
+
 def ler_arquivo_entrada():
     conteudo_arquivo = ''
     while not conteudo_arquivo:
@@ -36,13 +46,16 @@ def ler_arquivo_entrada():
             r.close()
             conteudo_arquivo = ''.join(map(str, texto))
             return conteudo_arquivo.upper()
-        else:
-            return 0
 
 
 def ler_arquivo_saida():
-    caminho = input('Informe o caminho do arquivo de saída: ')
-    return caminho.replace('\u202a', '')
+    valido = 0
+
+    while not valido:
+        caminho = input('Informe o caminho do arquivo de saída: ')
+        caminho.replace('\u202a', '')
+        valido = valida_caminho(caminho)
+    return caminho
 
 
 def gravar_arquivo(caminho, conteudo):
@@ -116,7 +129,6 @@ def indice_do_elemento(matriz, elemento):
 
 def normalizar_texto(texto: str):
     texto = texto.upper()
-    print(texto)
     novo_texto = ""
     separador = 1
     tamanho_original = len(texto)
@@ -193,11 +205,12 @@ def cripografar():
     conteudo_arquivo = ler_arquivo_entrada()
     chave = ler_chave()
     caminho_saida = ler_arquivo_saida()
-
+    cls()
     print('================================================')
     print('Iniciando processamento')
     resultado = realizar_criptografia(conteudo_arquivo, chave)
     gravar_arquivo(caminho_saida, resultado)
+    cls()
     print('Processamento finalizado')
     print('================================================')
     try:
@@ -268,8 +281,18 @@ def decriptografar():
     conteudo_arquivo = ler_arquivo_entrada()
     chave = ler_chave()
     caminho_saida = ler_arquivo_saida()
+    cls()
+    print('================================================')
+    print('Iniciando processamento')
     resultado = realizar_decriptografia(conteudo_arquivo, chave)
     gravar_arquivo(caminho_saida, resultado)
+    cls()
+    print('Processamento finalizado')
+    print('================================================')
+    try:
+        os.system('pause')  # windows, doesn't require enter
+    except:
+        os.system('read -p "Pressione qualquer tecla para continuar"')  # linux
 
 
 #################################################################
